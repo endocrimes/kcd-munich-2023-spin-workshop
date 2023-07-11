@@ -7,13 +7,12 @@ version = "0.1.0"
 
 [[component]]
 id = "magic-8-ball"
-source = "target/spin-http-js.wasm"
-exclude_files = ["**/node_modules"]
+source = "main.wasm"
 key_value_stores = ["default"]
 [component.trigger]
 route = "/magic-8"
 [component.build]
-command = "npm run build"
+command = "tinygo build -target=wasi -no-debug -o main.wasm ./src/main.go"
 
 [[component]]
 source = "spin_static_fs.wasm"

@@ -3,7 +3,7 @@
 To deploy this application to a WASM-enabled Kubernetes cluster, run
 
 ```
-npm install
+go mod tidy
 
 spin build
 

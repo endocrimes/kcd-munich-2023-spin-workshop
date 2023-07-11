@@ -1,4 +1,4 @@
+.spin
+Dockerfile
 deploy.yaml
-dist
-node_modules
-target
+main.wasm
