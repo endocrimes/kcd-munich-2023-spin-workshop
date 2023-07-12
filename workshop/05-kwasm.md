@@ -119,6 +119,41 @@ Hello, world! You should see me in pod logs
 
 Congrats! You now know how to run a WASM workload on a standard Kubernetes cluster using Spin and kwasm-operator!
 
+## Deploy the magic 8 ball app to the cluster
+
+We put the final version of the magic 8 ball application into
+`apps/05/magic-8-ball`. For now, this is a normal Spin project without any K8s
+specific configuration.
+
+To build the project, run `go mod download`, then `spin build`.
+
+To deploy the application to Kubernetes, we need to build the image and create a deployment manifest. We can do both by running
+
+```
+spin k8s scaffold <image repo>
+```
+
+where image repo is e.g. `ghcr.io/<your github username>`.
+
+This generates a `Dockerfile` and a `deploy.yaml`. Feel free to inspect both files.
+
+To build and push the image, run
+
+```
+spin k8s build
+
+spin k8s push
+```
+
+Make sure your cluster is able to pull the image from the registry (either by
+creating a pull secret, or by making the image public).
+
+To actually deploy the application to the cluster, run `spin k8s deploy`.
+
+You can now access the magic 8-ball application as you did with the other application previously.
+
+## Cleanup
+
 Feel free to delete the KinD cluster by running
 
 ```
