@@ -17,7 +17,7 @@ At this point, you should be able to run Spin commands:
 
 ```bash
 $ spin --version
-spin 1.1.0
+spin 1.4.1
 ```
 
 Now you can configure the templates and plugins we will use as part of this workshop:
@@ -61,4 +61,5 @@ In this section you learned how to:
 
 ### Navigation
 
-- Proceed to [1. Run your first wasm app on k3d](01-run-your-first-wasm-on-k3d.md) if you still have questions on previous section
+- Proceed to [Spin Getting Started](01-spin-getting-started.md)
+- if you still have questions on the previous section, please ask for help!

@@ -78,4 +78,3 @@ In this section you learned how to:
 
 ### Navigation
 - Go back to [2. Getting started with Spin](02-spin-getting-started.md) if you still have questions on previous section
-- (_optionally_) If finished, let us know what you thought of the Spin and the workshop with this [short Typeform survey](https://fibsu0jcu2g.typeform.com/to/RK08OLSy#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx).
