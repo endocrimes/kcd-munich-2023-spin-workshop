@@ -122,7 +122,7 @@ Congrats! You now know how to run a WASM workload on a standard Kubernetes clust
 ## Deploy the magic 8 ball app to the cluster
 
 We put the final version of the magic 8 ball application into
-`apps/05/magic-8-ball`. For now, this is a normal Spin project without any K8s
+[`apps/05/magic-8-ball`](../apps/05/magic-8-ball). For now, this is a normal Spin project without any K8s
 specific configuration.
 
 To build the project, run `go mod download`, then `spin build`.
