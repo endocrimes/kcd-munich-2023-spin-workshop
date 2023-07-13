@@ -1,0 +1,22 @@
+spin_manifest_version = "1"
+authors = ["Kate Goldenring <kate.goldenring@fermyon.com>", "Tom Gehrke <t.gehrke@reply.de>"]
+description = "A Magic 8 Ball"
+name = "magic-8-ball"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[[component]]
+id = "magic-8-ball"
+source = "main.wasm"
+key_value_stores = ["default"]
+[component.trigger]
+route = "/magic-8"
+[component.build]
+command = "tinygo build -target=wasi -no-debug -o main.wasm ./src/main.go"
+
+[[component]]
+source = "spin_static_fs.wasm"
+id = "fileserver"
+files = [{ source = "frontend/", destination = "/" }]
+[component.trigger]
+route = "/..."

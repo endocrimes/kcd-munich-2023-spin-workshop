@@ -1,0 +1,4 @@
+.spin
+Dockerfile
+deploy.yaml
+main.wasm
