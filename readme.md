@@ -3,6 +3,9 @@
 ## Dependencies
 
 - TinyGo
+- K3d
+- Kind
+- Helm
 
 ## Index
 
