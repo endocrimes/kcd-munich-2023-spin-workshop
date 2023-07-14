@@ -39,7 +39,103 @@ $ spin templates list
 
 You are now ready to create your first Spin application. Depending on what language you are familiar with, you can choose to follow the rest of the guide in Rust or JavaScript/TypeScript or Go.
 
-TODO: Add Go Steps Here
+### Building your first Spin application with Go
+
+The Go project is currently working on improving support for WebAssembly apps,
+but currently the best experience involves using TinyGo.
+
+You can create a new Spin application in Go based on a template — in this case, based on the HTTP Go template for Spin. This will create all the required configuration and files for your application — in this case, a regular Go project, with an additional configuration file, `spin.toml`:
+
+```bash
+$ spin new http-go hello-go && cd hello-go
+$ tree
+|-- go.mod
+|-- go.sum
+|-- spin.toml
+|-- main.go
+```
+
+Let's explore the `spin.toml` file. This is the Spin manifest file, which tells Spin what events should trigger what components. In this case our trigger is HTTP, for a web application, and we have only one component, at the route `/...` — a wildcard that matches any request sent to this application. In more complex applications, you can define multiple components that are triggered for requests on different routes.
+
+```toml
+spin_manifest_version = "1"
+description = ""
+name = "hello-go"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[[component]]
+id = "hello-go"
+source = "main.wasm"
+allowed_http_hosts = []
+[component.trigger]
+route = "/..."
+[component.build]
+command = "tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go"
+watch = ["**/*.go", "go.mod"]
+```
+
+> Note: you can [learn more about the Spin manifest file in the Spin documentation](https://developer.fermyon.com/spin/writing-apps).
+
+You are now ready to build your application using `spin build`, which will invoke each component's `[component.build.command]` from `spin.toml`:
+
+```bash
+$ spin build
+Executing the build command for component hello-go: tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go
+Successfully ran the build command for the Spin components.
+```
+
+> Note: if you are having issues building your application, refer to the [troubleshooting guide from the setup document](./00-setup.md#troubleshooting).
+
+You can now start your application using `spin up`:
+
+```bash
+$ spin up
+Serving http://127.0.0.1:3000
+Available Routes:
+  hello-rust: http://127.0.0.1:3000 (wildcard)
+```
+
+The command will start Spin on port 3000. You can now access the application by navigating to `localhost:3000` in your browser, or by using `curl`:
+
+```bash
+$ curl localhost:3000
+Hello, Fermyon
+```
+
+That response is coming from the handler function for this component — in the case of a Go component, defined in `main.go`. You can see we set up the handler in `init` as `main` does not get called for WASI applications. 
+
+Let's change the message body to "Hello, WebAssembly!":
+
+```go
+func init() {
+	spinhttp.Handle(func(w http.ResponseWriter, r *http.Request) {
+		router := spinhttp.NewRouter()
+		router.GET("/", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintln(w, "Hello, WebAssembly!")
+		})
+		router.ServeHTTP(w, r)
+	})
+}
+```
+
+We can now run `spin build` again, which will compile our component, and we can use the `--up` flag to automatically start the application, then send another request:
+
+```bash
+$ spin build --up
+$ curl -v localhost:3000
+< HTTP/1.1 200 OK
+< foo: bar
+< content-length: 19
+
+Hello, WebAssembly!
+```
+
+You are now ready to expand your application. You can follow the [guide for building Rust components from the Spin documentation](https://developer.fermyon.com/spin/go-components).
+
+> Note: you can find the complete applications used in this workshop in the [`apps` directory](./apps/).
+
 
 ### Building your first Spin application with Rust
 

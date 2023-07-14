@@ -34,6 +34,9 @@ EOF
 
 ## Package your Spin app inside a container
 
+> Example dockerfiles and k8s deployment manifests exist in the apps/03
+> directory.
+
 We will use an experimental [Spin k8s plugin](https://github.com/chrismatteson/spin-plugin-k8s) to package our Spin application inside a Container. While Spin supports packaging Spin applications as OCI artifacts with `spin registry`, currently, the `containerd-wasm-shim` expects the Wasm modules to be inside a container. The shim then pulls the module outside of the container when the application is deployed to the cluster. In the future, the shim may support Spin application OCI artifacts, reducing the steps needed to deploy your Spin application to a cluster.
 
 The plugin requires that all modules are available locally and that files are within subdirectories of the working directory. In particular, we need to get the static fileserver module, move our frontend files within this directory, and update our component manifest with the new resource paths.

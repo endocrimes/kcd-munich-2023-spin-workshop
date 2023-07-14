@@ -39,7 +39,6 @@ Depending on the programming languages you want to use, you will need to configu
 - [Rust](https://www.rust-lang.org/learn/get-started) (including the Wasm/WASI target: `rustup target install wasm32-wasi`)
 - [Node.js and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Go](https://go.dev/doc/install) and [TinyGo](https://tinygo.org/getting-started/install)
-- [.NET](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
 ### Troubleshooting
 
