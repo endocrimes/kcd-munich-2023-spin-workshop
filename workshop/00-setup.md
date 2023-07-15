@@ -17,7 +17,7 @@ At this point, you should be able to run Spin commands:
 
 ```bash
 $ spin --version
-spin 1.1.0
+spin 1.4.1
 ```
 
 Now you can configure the templates and plugins we will use as part of this workshop:
@@ -39,7 +39,6 @@ Depending on the programming languages you want to use, you will need to configu
 - [Rust](https://www.rust-lang.org/learn/get-started) (including the Wasm/WASI target: `rustup target install wasm32-wasi`)
 - [Node.js and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Go](https://go.dev/doc/install) and [TinyGo](https://tinygo.org/getting-started/install)
-- [.NET](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
 ### Troubleshooting
 
@@ -61,4 +60,5 @@ In this section you learned how to:
 
 ### Navigation
 
-- Proceed to [1. Run your first wasm app on k3d](01-run-your-first-wasm-on-k3d.md) if you still have questions on previous section
+- Proceed to [Spin Getting Started](01-spin-getting-started.md)
+- if you still have questions on the previous section, please ask for help!

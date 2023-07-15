@@ -1,15 +1,15 @@
 # Getting started with Spin
 
-In the previous sections, we have deployed existing WebAssembly (Wasm) applications to our Kubernetes cluster. Let's explore how to build our own using [Spin](https://github.com/fermyon/spin), an open source developer tool for building and running serverless applications with WebAssembly.
+Let's explore how to build a WASM application of our own using [Spin](https://github.com/fermyon/spin), an open source developer tool for building and running serverless applications with WebAssembly.
 
 This document assumes you have followed [the setup guide](./00-setup.md) and have an environment configured with the Spin CLI and other language-specific tools (such as `node`, `cargo`, or `tinygo`).
 
 ```bash
 $ spin --version
-spin 1.1.0
+spin 1.4.1
 ```
 
-[Spin](https://github.com/fermyon/spin) is an open source framework for building, distributing, and running serverless applications and microservices with WebAssembly (or Wasm).
+[Spin](https://github.com/fermyon/spin) is an open source framework for building, distributing, and running serverless applications and microservices with WebAssembly.
 
 Spin uses Wasm because of its portability, sandboxed execution environment, and near-native speed. [More and more languages have support for WebAssembly](https://www.fermyon.com/wasm-languages/webassembly-language-support), so you should be able to use your favorite language to build your first serverless application with Wasm.
 
@@ -18,20 +18,124 @@ The following two sections will guide you through creating your first Spin appli
 ```bash
 $ spin templates list
 
-+-----------------------------------------------------------------------------+
-| Name                Description                                             |
-+=============================================================================+
-| http-empty          HTTP application with no components                     |
-| http-js             HTTP request handler using Javascript                   |
-| http-rust           HTTP request handler using Rust                         |
-| http-ts             HTTP request handler using Typescript                   |
-| kv-explorer         Explore the contents of Spin KV stores                  |
-| nextjs-frontend     Build your front-end application using Next.js and Spin |
-| static-fileserver   Serves static files from an asset directory             |
-+-----------------------------------------------------------------------------+
++------------------------------------------------------------------------+
+| Name                Description                                        |
++========================================================================+
+| http-c              HTTP request handler using C and the Zig toolchain |
+| http-empty          HTTP application with no components                |
+| http-go             HTTP request handler using (Tiny)Go                |
+| http-grain          HTTP request handler using Grain                   |
+| http-php            HTTP request handler using PHP                     |
+| http-rust           HTTP request handler using Rust                    |
+| http-swift          HTTP request handler using SwiftWasm               |
+| http-zig            HTTP request handler using Zig                     |
+| kv-explorer         Explore the contents of Spin KV stores             |
+| redirect            Redirects a HTTP route                             |
+| redis-go            Redis message handler using (Tiny)Go               |
+| redis-rust          Redis message handler using Rust                   |
+| static-fileserver   Serves static files from an asset directory        |
++------------------------------------------------------------------------+
 ```
 
-You are now ready to create your first Spin applications. Depending on what language you are familiar with, you can choose to follow the rest of the guide in Rust or JavaScript/TypeScript.
+You are now ready to create your first Spin application. Depending on what language you are familiar with, you can choose to follow the rest of the guide in Rust or JavaScript/TypeScript or Go.
+
+### Building your first Spin application with Go
+
+The Go project is currently working on improving support for WebAssembly apps,
+but currently the best experience involves using TinyGo.
+
+You can create a new Spin application in Go based on a template — in this case, based on the HTTP Go template for Spin. This will create all the required configuration and files for your application — in this case, a regular Go project, with an additional configuration file, `spin.toml`:
+
+```bash
+$ spin new http-go hello-go && cd hello-go
+$ tree
+|-- go.mod
+|-- go.sum
+|-- spin.toml
+|-- main.go
+```
+
+Let's explore the `spin.toml` file. This is the Spin manifest file, which tells Spin what events should trigger what components. In this case our trigger is HTTP, for a web application, and we have only one component, at the route `/...` — a wildcard that matches any request sent to this application. In more complex applications, you can define multiple components that are triggered for requests on different routes.
+
+```toml
+spin_manifest_version = "1"
+description = ""
+name = "hello-go"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[[component]]
+id = "hello-go"
+source = "main.wasm"
+allowed_http_hosts = []
+[component.trigger]
+route = "/..."
+[component.build]
+command = "tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go"
+watch = ["**/*.go", "go.mod"]
+```
+
+> Note: you can [learn more about the Spin manifest file in the Spin documentation](https://developer.fermyon.com/spin/writing-apps).
+
+You are now ready to build your application using `spin build`, which will invoke each component's `[component.build.command]` from `spin.toml`:
+
+```bash
+$ spin build
+Executing the build command for component hello-go: tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go
+Successfully ran the build command for the Spin components.
+```
+
+> Note: if you are having issues building your application, refer to the [troubleshooting guide from the setup document](./00-setup.md#troubleshooting).
+
+You can now start your application using `spin up`:
+
+```bash
+$ spin up
+Serving http://127.0.0.1:3000
+Available Routes:
+  hello-rust: http://127.0.0.1:3000 (wildcard)
+```
+
+The command will start Spin on port 3000. You can now access the application by navigating to `localhost:3000` in your browser, or by using `curl`:
+
+```bash
+$ curl localhost:3000
+Hello, Fermyon
+```
+
+That response is coming from the handler function for this component — in the case of a Go component, defined in `main.go`. You can see we set up the handler in `init` as `main` does not get called for WASI applications. 
+
+Let's change the message body to "Hello, WebAssembly!":
+
+```go
+func init() {
+	spinhttp.Handle(func(w http.ResponseWriter, r *http.Request) {
+		router := spinhttp.NewRouter()
+		router.GET("/", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintln(w, "Hello, WebAssembly!")
+		})
+		router.ServeHTTP(w, r)
+	})
+}
+```
+
+We can now run `spin build` again, which will compile our component, and we can use the `--up` flag to automatically start the application, then send another request:
+
+```bash
+$ spin build --up
+$ curl -v localhost:3000
+< HTTP/1.1 200 OK
+< foo: bar
+< content-length: 19
+
+Hello, WebAssembly!
+```
+
+You are now ready to expand your application. You can follow the [guide for building Rust components from the Spin documentation](https://developer.fermyon.com/spin/go-components).
+
+> Note: you can find the complete applications used in this workshop in the [`apps` directory](./apps/).
+
 
 ### Building your first Spin application with Rust
 
@@ -253,4 +357,3 @@ In this section you learned how to:
 ### Navigation
 - Go back to [0. Setup](00-setup.md) if you still have questions on previous section
 - Otherwise, proceed to [2. Run your first wasm app on k3d](02-run-your-first-wasm-on-k3d.md) if you still have questions on previous section.
-- (_optionally_) If finished, let us know what you thought of the Spin and the workshop with this [short Typeform survey](https://fibsu0jcu2g.typeform.com/to/RK08OLSy#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx).
